@@ -2,9 +2,7 @@ name: Gantt Chart Generator
 
 on:
   schedule:
-    - cron: '0 12 * * *'
-    - cron: '05 23 * * *'
-    - cron: '57 22 * * *'
+    - cron: '45 22 * * *'
   workflow_dispatch: 
 
 jobs:
