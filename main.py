@@ -3,7 +3,7 @@ import plotly.graph_objects as go
 from datetime import datetime
 
 # Lê o dataframe a partir do arquivo Excel
-df = pd.read_excel('C:\\Users\\Raul\\PycharmProjects\\pythonProject\\task.xlsx', sheet_name='Sheet1')
+df = pd.read_excel('./task.xlsx', sheet_name='Sheet1')
 
 # Converte as colunas de datas do dataframe para o formato datetime
 df['Início'] = pd.to_datetime(df['Início'], dayfirst=True)
@@ -131,6 +131,6 @@ fig.update_layout(
 )
 
 # Salva o gráfico como um arquivo HTML
-fig.write_html("C:\\Users\\Raul\\PycharmProjects\\pythonProject\\grafico_gantt.html")
+fig.write_html("./grafico_gantt.html")
 # Exibe o gráfico use para testes sõ
 fig.show()
