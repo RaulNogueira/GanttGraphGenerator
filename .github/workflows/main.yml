@@ -18,9 +18,10 @@ jobs:
       with:
         python-version: 3.9  # Escolha a versão do Python que deseja usar.
 
-    - name: Install Dependencies
+    - name: Install dependencies
       run: |
-        pip install pandas plotly openpyxl
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
 
     - name: Run Script
       run: python .github/scripts/generate_gantt_chart.py  # Substitua este caminho pelo local correto de seu script.
