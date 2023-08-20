@@ -1,0 +1,30 @@
+name: Gantt Chart Generator
+
+on:
+  schedule:
+    - cron: '0 12 * * *'
+
+jobs:
+  generate_chart:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+      
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9  # Escolha a versão do Python que deseja usar.
+
+    - name: Install Dependencies
+      run: |
+        pip install pandas plotly openpyxl
+
+    - name: Run Script
+      run: python .github/scripts/generate_gantt_chart.py  # Substitua este caminho pelo local correto de seu script.
+
+    - name: Upload HTML file as Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: gantt_chart
+        path: ./grafico_gantt.html  # Este é o caminho onde seu script salva o arquivo HTML. Talvez você precise ajustar o caminho dependendo da estrutura de seu repositório.
