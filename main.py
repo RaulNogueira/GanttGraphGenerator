@@ -1,9 +1,21 @@
 import pandas as pd
 import plotly.graph_objects as go
 from datetime import datetime
+import requests
+from io import BytesIO
+
+# Link direto para o download do arquivo no OneDrive
+link = "https://onedrive.live.com/download?resid=418310F3CCC9CD06%21290&authkey=!ADTm63ig8VK0sXo&em=2"
+
+# Baixar o arquivo usando requests
+response = requests.get(link)
+response.raise_for_status()  # Lançará um erro se houver um problema com a solicitação
+
+# Usa o conteúdo baixado para criar um BytesIO stream e carregá-lo diretamente no pandas
+df = pd.read_excel(BytesIO(response.content), sheet_name='Sheet1')
 
 # Lê o dataframe a partir do arquivo Excel
-df = pd.read_excel('./task.xlsx', sheet_name='Sheet1')
+#df = pd.read_excel('./task.xlsx', sheet_name='Sheet1')
 
 # Converte as colunas de datas do dataframe para o formato datetime
 df['Início'] = pd.to_datetime(df['Início'], dayfirst=True)
