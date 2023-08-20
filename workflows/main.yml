@@ -2,7 +2,7 @@ name: Gantt Chart Generator
 
 on:
   schedule:
-    - cron: '0 12 * * *'
+    - cron: '20 16 * * *'
 
 jobs:
   generate_chart:
