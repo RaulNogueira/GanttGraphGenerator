@@ -23,7 +23,8 @@ jobs:
         pip install -r requirements.txt
 
     - name: Run Script
-      run: python .github/scripts/generate_gantt_chart.py  # Substitua este caminho pelo local correto de seu script.
+      run: python ./main.py
+
 
     - name: Upload HTML file as Artifact
       uses: actions/upload-artifact@v2
