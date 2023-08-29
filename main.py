@@ -1,9 +1,12 @@
+
 import pandas as pd
 import plotly.graph_objects as go
 from datetime import datetime
 import requests
 from io import BytesIO
 from dependency_lines import draw_dependency_lines
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
 
 # Link direto para o download do arquivo no OneDrive
 #link = "https://onedrive.live.com/download?resid=418310F3CCC9CD06%21290&authkey=!ADTm63ig8VK0sXo&em=2"
@@ -18,7 +21,6 @@ from dependency_lines import draw_dependency_lines
 # Lê o dataframe a partir do arquivo Excel se quiser usar localmente
 df = pd.read_excel('./task.xlsx', sheet_name='Sheet1')
 
-
 # Converte as colunas de datas do dataframe para o formato datetime
 df['Início'] = pd.to_datetime(df['Início'], dayfirst=True)
 df['Due Date'] = pd.to_datetime(df['Due Date'], dayfirst=True)
@@ -32,7 +34,6 @@ df['Duração Estimada'] = (df['Due Date'] - df['Início']).dt.days
 
 # Calcula a duração real de cada tarefa em dias, usando a data atual se a tarefa ainda não foi concluída
 df['Duração Real'] = df.apply(lambda row: (row['Closing Date'] if pd.notna(row['Closing Date']) else datetime.now()) - row['Início'], axis=1).dt.days
-
 
 # Define cores para diferentes "tecnologias"
 colors_tech = {
@@ -53,25 +54,6 @@ colors_status = {
     'Backlog': '#A6ACAF',
     'Em Produção': '#58D68D',
 }
-
-light_mode = {
-    'plot_bgcolor': 'white',
-    'paper_bgcolor': 'white',
-    'font': {'color': 'black'},
-    'title_font': {'color': 'black'},
-    'xaxis': {'gridcolor': 'grey', 'linecolor': 'grey'},
-    'yaxis': {'gridcolor': 'grey', 'linecolor': 'grey'}
-}
-
-dark_mode = {
-    'plot_bgcolor': '#2a2a2a',
-    'paper_bgcolor': '#2a2a2a',
-    'font': {'color': 'white'},
-    'title_font': {'color': 'white'},
-    'xaxis': {'gridcolor': '#515151', 'linecolor': '#515151'},
-    'yaxis': {'gridcolor': '#515151', 'linecolor': '#515151'}
-}
-
 
 # Define a data de início da tarefa mais antiga no dataframe para usar como referência
 p_start = df['Início'].min()
@@ -108,8 +90,8 @@ for index, row in df.iterrows():
             base=(row['Início'] - p_start).days,
             width=0.5,
             showlegend=False,
-            hoverinfo="text",  # Defina para mostrar apenas o texto definido em 'hovertext'
-            hovertext=hover_text  # Informação da planilha formatada para ser exibida
+            hoverinfo="text",  # Mostra apenas o texto definido em 'hovertext'
+            hovertext=hover_text  # Dados da coluna "Informação" da planilha formatada para ser exibida
         ))
 
 
@@ -190,6 +172,30 @@ for index, row in df.iterrows():
                 font=dict(size=18)
             )
 
+# Adiciona uma barra vermelha para tarefas com um problema durante intervalos específicos
+for index, row in df.iterrows():
+    if pd.notna(row['Bugs']):  # Verifica se a coluna 'Bugs' contém dados
+        intervals = row['Bugs'].split(';')
+        for interval in intervals:
+            start_date_str, end_date_str = interval.split('-')
+            start_date = pd.to_datetime(start_date_str.strip(), dayfirst=True)
+            end_date = pd.to_datetime(end_date_str.strip(), dayfirst=True)
+
+            # Calcula a duração do problema em dias
+            problem_duration = (end_date - start_date).days
+
+            fig.add_trace(go.Bar(
+                x=[problem_duration],
+                y=[row['Atividade']],
+                name="Problema",
+                orientation='h',
+                marker=dict(color='red', opacity=0.5),
+                base=(start_date - p_start).days,
+                width=0.5,
+                showlegend=False,
+                hoverinfo="text",
+                hovertext=f"Problema de {start_date_str.strip()} a {end_date_str.strip()}"
+            ))
 
 # Adiciona linhas tracejadas para mostrar o data estimada de cada tarefa
 for index, row in df.iterrows():
@@ -217,10 +223,25 @@ fig.add_shape(
 )
 
 
-# Atualiza o layout do gráfico
-dates = pd.date_range(start=p_start, end=df['Due Date'].max(), freq='W-MON')
+# Geração de ticks e posições
+dates = pd.date_range(start=p_start, end=df['Due Date'].max(), freq='2W-MON')
 x_ticks = [date.strftime('%d-%b') for date in dates]
 x_ticks_pos = [(date - p_start).days for date in dates]
+
+# Adiciona anotações de Sprint no gráfico
+sprint_number = 1  # Número inicial da Sprint
+for pos in x_ticks_pos:
+    fig.add_annotation(
+        text=f"Sprint {sprint_number}",
+        x=pos+7,
+        y=1.05,  # posição y para colocar no topo
+        yref='paper',
+        showarrow=False,
+        font=dict(size=10)
+    )
+    sprint_number += 1
+
+
 
 fig.update_layout(
     title="Gráfico de Gantt: Progresso das Atividades",
@@ -233,33 +254,11 @@ fig.update_layout(
     paper_bgcolor='white',  # Cor de fundo do papel
     font=dict(color="black"),  # Cor da fonte
     title_font=dict(color="black"),  # Cor da fonte do título
-    bargap=0,  # Espaçamento entre barras
-    updatemenus=[
-        {
-            'buttons': [
-                {
-                    'args': [light_mode],
-                    'label': 'Modo Claro',
-                    'method': 'update'
-                },
-                {
-                    'args': [dark_mode],
-                    'label': 'Modo Escuro',
-                    'method': 'update'
-                }
-            ],
-            'direction': 'down',
-            'showactive': True,
-            'x': 1.15,
-            'xanchor': 'right',
-            'y': 1.1,
-            'yanchor': 'top'
-        }
-    ],
-
+    bargap=0  # Espaçamento entre barras
 )
 
 # Salva o gráfico como um arquivo HTML
 fig.write_html("./docs/index.html", auto_open=True)
 # Exibe o gráfico use para testes
 #fig.show()
+
