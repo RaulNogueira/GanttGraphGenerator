@@ -241,7 +241,41 @@ for pos in x_ticks_pos:
     )
     sprint_number += 1
 
+# Sua legenda personalizada
+legend_elements = [
+    ("Em Dev", "Amarelo", '#fcc42e'),
+    ("Em Testes", "Azul", '#5c9cd4'),
+    ("Em Implantação", "Verde", '#58D68D'),
+    ("Demanda Paralisada", "Vermelho", '#E74C3C'),
+    ("Refinamento", "Roxo", '#884EA0'),
+    ("Produção", "🚀", None)
+]
 
+# Posições iniciais da legenda
+legend_x = 0.1  # Posição inicial da legenda em relação ao gráfico (começa da esquerda)
+legend_y = -0.1  # Posição vertical da legenda em relação ao gráfico (fora do gráfico)
+
+# Cria a legenda usando anotações
+for name, color_description, color_code in legend_elements:
+    symbol = "■" if color_code else "🚀"  # Se não tiver um código de cor, use o emoji do foguete
+
+    # Cor do símbolo ou emoji
+    color = f'<span style="color:{color_code};">{symbol}</span>' if color_code else symbol
+
+    fig.add_annotation(
+        text=f"{color} {name} ({color_description})",
+        x=legend_x,
+        y=legend_y,
+        xref='paper',
+        yref='paper',
+        showarrow=False,
+        align='left',
+        bgcolor="white",
+        borderpad=4
+    )
+
+    # Distancia da posição x para a próxima anotação na legenda.
+    legend_x += 0.125
 
 fig.update_layout(
     title="Gráfico de Gantt: Progresso das Atividades",
