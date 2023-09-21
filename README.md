@@ -4,7 +4,9 @@ O Objetivo desse código é apartir de um dataframe, neste caso uma planilha do 
 
 ## Screenshots
 
-![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
+![First Version](https://github.com/RaulNogueira/GanttGraphGenerator/raw/main/img/Gantt.jpg)
+![Second Version](https://github.com/RaulNogueira/GanttGraphGenerator/raw/main/img/newplot.png)
+![Latest Version](https://github.com/RaulNogueira/GanttGraphGenerator/raw/main/img/screenshot.png)
 
 
 ## Instalação
